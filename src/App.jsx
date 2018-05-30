@@ -14,7 +14,8 @@ class App extends Component {
     this.nameChange = this.nameChange.bind(this);
     this.messageSend = this.messageSend.bind(this);
   }
-
+  //this function builds a message based on the two input( content of
+  //the message and type of the message and sends it to the socket server)
     addMessage(content,type){
     let messages = this.state.messages;
 
@@ -22,11 +23,8 @@ class App extends Component {
       type: type,
       content: content,
       username: this.state.currentUser.name
-    }
-    messages.push(newmessage);
-    this.setState({
-      messages: messages
-    })
+    };
+    this.ws.send(JSON.stringify(newmessage));
   }
 
   nameChange(newname){
@@ -50,9 +48,15 @@ class App extends Component {
     //setting socket server
     this.ws = new WebSocket('ws://localhost:3001');
     this.ws.addEventListener('open', () => {
-
     });
-
+    this.ws.onmessage = event => {
+      let broadcast = JSON.parse(event.data);
+      if(broadcast.type == "notification" || broadcast.type =="message") {
+        console.log(broadcast);
+        let newList = this.state.messages.concat([broadcast]);
+        this.setState({messages: newList})
+      }
+    }
     this.ws.onerror = e => this.setState({ error: 'WebSocket error' })
     this.ws.onclose = e => !e.wasClean && this.setState({ error: `WebSocket error: ${e.code} ${e.reason}` })
 
