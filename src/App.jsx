@@ -32,30 +32,39 @@ class App extends Component {
   nameChange(newname){
     let oldName = this.state.currentUser.name;
     let content = oldName + " changed name to " + newname;
-    this.addMessage(content, "notification");
-    this.setState({
-      currentUser: {name:newname}
+    if(oldName != newname){
+      this.addMessage(content, "notification");
+      this.setState({
+        currentUser: {name:newname}
 
-    });
+      });
+    }
   }
 
   messageSend(text){
     this.addMessage(text, "message");
   }
 
-componentDidMount() {
+  componentDidMount() {
 
-//setting socket server
-this.ws = new WebSocket('ws://localhost:3001');
-  this.ws.addEventListener('open', () => {
+    //setting socket server
+    this.ws = new WebSocket('ws://localhost:3001');
+    this.ws.addEventListener('open', () => {
 
-  });
+    });
+
     this.ws.onerror = e => this.setState({ error: 'WebSocket error' })
-  this.ws.onclose = e => !e.wasClean && this.setState({ error: `WebSocket error: ${e.code} ${e.reason}` })
-  setTimeout(() => {
+    this.ws.onclose = e => !e.wasClean && this.setState({ error: `WebSocket error: ${e.code} ${e.reason}` })
 
-  }, 3000);
-}
+    setTimeout(() => {
+
+    }, 3000);
+  }
+
+  componentWillUnmount() {
+    this.ws.close()
+  }
+
   render() {
     return (
       <div>
