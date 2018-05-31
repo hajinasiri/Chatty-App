@@ -60,7 +60,6 @@ class App extends Component {
       let broadcast = JSON.parse(event.data);
       let type = broadcast.type;
       if(type === "notification" || type =="message") {
-        console.log(broadcast);
         let newList = this.state.messages.concat([broadcast]);
         this.setState({messages: newList})
       }else if(type === "count"){
