@@ -9,7 +9,7 @@ class App extends Component {
   constructor(props){
     super();
     this.state ={
-      count: 0,
+      count: "",
       currentUser: {name: "new user"},
       messages: [ ]
     }
@@ -59,7 +59,13 @@ class App extends Component {
         let newList = this.state.messages.concat([broadcast]);
         this.setState({messages: newList})
       }else if(type == "count"){
-        this.setState({count:broadcast.count});
+        let countMessage = "online";
+        if(broadcast.count === 1){
+          countMessage = "1 user " + countMessage ;
+        } else{
+          countMessage = broadcast.count + " users " + countMessage;
+        }
+        this.setState({count:countMessage});
       }
     }
     this.ws.onerror = e => this.setState({ error: 'WebSocket error' })
