@@ -10,6 +10,7 @@ class App extends Component {
     super();
     this.state ={
       count: "",
+      color: "",
       currentUser: {name: "new user"},
       messages: [ ]
     }
@@ -19,14 +20,17 @@ class App extends Component {
   //this function builds a message based on the two input( content of
   //the message and type of the message and sends it to the socket server)
     addMessage(content,type){
-    let messages = this.state.messages;
-
     let newmessage = {
       type: type,
       content: content,
       username: this.state.currentUser.name,
       id:uniqueID()
     };
+    if(type === "message"){
+      newmessage.color = this.state.color;
+    }else if(type === "notification"){
+      newmessage.color = "black"
+    }
     this.ws.send(JSON.stringify(newmessage));
   }
 
@@ -55,10 +59,11 @@ class App extends Component {
     this.ws.onmessage = event => {
       let broadcast = JSON.parse(event.data);
       let type = broadcast.type;
-      if(type == "notification" || type =="message") {
+      if(type === "notification" || type =="message") {
+        console.log(broadcast);
         let newList = this.state.messages.concat([broadcast]);
         this.setState({messages: newList})
-      }else if(type == "count"){
+      }else if(type === "count"){
         let countMessage = "online";
         if(broadcast.count === 1){
           countMessage = "1 user " + countMessage ;
@@ -66,6 +71,8 @@ class App extends Component {
           countMessage = broadcast.count + " users " + countMessage;
         }
         this.setState({count:countMessage});
+      }else if(type === "color"){
+        this.state.color = broadcast.color;
       }
     }
     this.ws.onerror = e => this.setState({ error: 'WebSocket error' })

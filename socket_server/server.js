@@ -4,6 +4,7 @@ const wsLib = require('ws');
 
 // Set the port to 3001
 const PORT = 3001;
+const colors = ["#760dd0", "#e81442", "#1452e8", "#0a8a16"];
 
 // Create a new express server
 const server = express()
@@ -28,6 +29,8 @@ wss.broadcast = (data) => {
   })
 }
 wss.on('connection', (client) => {
+  let color = colors[Math.floor(Math.random()*colors.length)];
+  client.send(JSON.stringify({color: color, type: "color"}));
   countSend();
   client.on('message',(str)=>{
     wss.broadcast(str);
