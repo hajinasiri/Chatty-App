@@ -14,6 +14,12 @@ const server = express()
 // Create the WebSockets server
 const wss = new SocketServer({ server });
 
+//This function counts the clients and broadcasts a message about client size to all clients
+countSend = () => {
+  let count = {type:"count", count:wss.clients.size};
+  wss.broadcast(JSON.stringify(count));
+}
+
 wss.broadcast = (data) => {
   wss.clients.forEach( (client) => {
     if (client.readyState === wsLib.OPEN) {
@@ -22,13 +28,13 @@ wss.broadcast = (data) => {
   })
 }
 wss.on('connection', (client) => {
-  console.log('Client connected');
-
+  countSend();
   client.on('message',(str)=>{
-    console.log("new message recieved");
     wss.broadcast(str);
+
   });
 
-  // Set up a callback for when a client closes the socket. This usually means they closed their browser.
-  client.on('close', () => console.log('Client disconnected'));
+  client.on('close', () => {
+    countSend();
+  });
 });

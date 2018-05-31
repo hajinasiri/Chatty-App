@@ -3,11 +3,13 @@ import NavBar from './NavBar.jsx';
 import ChatBar from './ChatBar.jsx';
 import MessageList from './MessageList.jsx';
 import Message from './Message.jsx';
+const uniqueID = require('uuid/v1');
 
 class App extends Component {
   constructor(props){
     super();
     this.state ={
+      count: 0,
       currentUser: {name: "new user"},
       messages: [ ]
     }
@@ -22,7 +24,8 @@ class App extends Component {
     let newmessage = {
       type: type,
       content: content,
-      username: this.state.currentUser.name
+      username: this.state.currentUser.name,
+      id:uniqueID()
     };
     this.ws.send(JSON.stringify(newmessage));
   }
@@ -51,10 +54,12 @@ class App extends Component {
     });
     this.ws.onmessage = event => {
       let broadcast = JSON.parse(event.data);
-      if(broadcast.type == "notification" || broadcast.type =="message") {
-        console.log(broadcast);
+      let type = broadcast.type;
+      if(type == "notification" || type =="message") {
         let newList = this.state.messages.concat([broadcast]);
         this.setState({messages: newList})
+      }else if(type == "count"){
+        this.setState({count:broadcast.count});
       }
     }
     this.ws.onerror = e => this.setState({ error: 'WebSocket error' })
@@ -72,7 +77,7 @@ class App extends Component {
   render() {
     return (
       <div>
-        <NavBar/>
+        <NavBar count = {this.state.count}/>
         <main className="messages">
           <MessageList MessageList = {this.state.messages} />
           <Message/>
