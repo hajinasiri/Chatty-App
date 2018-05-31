@@ -20,9 +20,6 @@ class Message extends Component {
     }else{
       message = this.props.content;
     }
-
-    console.log("url", url);
-
     if(this.props.type == undefined){
       return (<div></div>)
     }else if(this.props.type == "message"){
